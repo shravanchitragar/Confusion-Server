@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
+
 mongoose.Promise = require('bluebird');
 const Dishes = require('./models/dishes');
 
@@ -39,34 +42,58 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+//app.use(cookieParser('12345-67890-09876-54321'));
+
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
+
 
 function auth(req,res,next){
-  console.log(req.headers);
+  console.log(req.session);
 
-  var authHeader = req.headers.authorization;
-
-  if(!authHeader){
-    var err = new Error('You are not authenticated!');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    return next(err);
-  }
-
-  var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
-  var username = auth[0];
-  var password = auth[1];
-
-  if(username=== 'admin' && password=== 'password'){
-    next();
+  if(!req.session.user){
+    var authHeader = req.headers.authorization;
+    
+      if(!authHeader){
+        var err = new Error('You are not authenticated!');
+        res.setHeader('WWW-Authenticate', 'Basic');
+        err.status = 401;
+        return next(err);
+      }
+    
+      var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(':');
+      var username = auth[0];
+      var password = auth[1];
+    
+      if(username=== 'admin' && password=== 'password'){
+        res.session.user = 'admin';
+        next();
+      }
+      else{
+        var err = new Error('You are not authenticated!');
+        res.setHeader('WWW-Authenticate', 'Basic');
+        err.status = 401;
+        return next(err);
+      }
+    
   }
   else{
-    var err = new Error('You are not authenticated!');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    return next(err);
-  }
+    if(req.session.user===admin){
+      next();
+    }
+    else{
+      var err = new Error('You are not authenticated!');
+      err.status = 401;
+      return next(err);
 
+    }
+  }
+  
 }
 
 
