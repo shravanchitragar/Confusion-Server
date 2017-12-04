@@ -3,22 +3,22 @@ const Schema = mongoose.Schema;
 require('mongoose-currency').loadType(mongoose);
 const Currency = mongoose.Types.Currency;
 
-var commentSchema = new Schema({
+// const commentSchema = new Schema({
 
-    comment:{
-        type:String,
-        required:true,
-        },
-    rating:{
-        type:Number,
-        min:1,
-        max:10,
-        required:true
+//     comment:{
+//         type:String,
+//         required:true,
+//         },
+//     rating:{
+//         type:Number,
+//         min:1,
+//         max:10,
+//         required:true
 
-    },
-},{
-    timestamps:true
-});
+//     },
+// },{
+//     timestamps:true
+// });
 
 var dishSchema = new Schema({
     name: {
@@ -30,28 +30,7 @@ var dishSchema = new Schema({
         type: String,
         required: true
     },
-    image: {
-        type: String,
-        required: true
-    },
-    category: {
-        type: String,
-        required: true
-    },
-    label: {
-        type: String,
-        default: ''
-    },
-    price: {
-        type: Currency,
-        required: true,
-        min: 0
-    },
-    featured: {
-        type: Boolean,
-        default:false      
-    },
-    comments:[commentSchema]
+    //comments:[commentSchema]
 }, {
     timestamps: true
 });
@@ -59,4 +38,3 @@ var dishSchema = new Schema({
 var Dishes = mongoose.model('dish',dishSchema);
 
 module.exports = Dishes;
-
